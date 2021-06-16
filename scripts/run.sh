@@ -27,40 +27,41 @@ declare -A volume_names=(
 
 while getopts "i:v:e:u:p:UVc:h" opt; do
   case "$opt" in
-    i)
-      image="$OPTARG"
-      ;;
-    v)
-      ventry="$(echo "$OPTARG" | cut -d':' -f1)"
-      vname="$(echo "$OPTARG" | cut -d':' -f2)"
+  i)
+    image="$OPTARG"
+    ;;
+  v)
+    ventry="$(echo "$OPTARG" | cut -d':' -f1)"
+    vname="$(echo "$OPTARG" | cut -d':' -f2)"
 
-      if [[ -z "${volume_paths["$ventry"]}" ]]; then
-        echo >&2 "Invalid volume entry $ventry"
-        exit 1
-      fi
+    if [[ -z "${volume_paths["$ventry"]}" ]]; then
+      echo >&2 "Invalid volume entry $ventry"
+      exit 1
+    fi
 
-      volume_names["$ventry"]="$vname"
-      ;;
-    e)
-      env_file="$OPTARG"
-      ;;
-    u)
-      steam_user="$OPTARG"
-      ;;
-    p)
-      steam_password="$OPTARG"
-      ;;
-    U)
-      steamcmd_update=1
-      ;;
-    V)
-      steamcmd_validate=1
-      ;;
-    c)
-      custom_game="$OPTARG"
-      ;;
-    ?)
-      cat >&2 <<EOF
+    volume_names["$ventry"]="$vname"
+    ;;
+  e)
+    env_file="$OPTARG"
+    ;;
+  u)
+    steam_user="$OPTARG"
+    ;;
+  p)
+    steam_password="$OPTARG"
+    ;;
+  U)
+    steamcmd_update=1
+    ;;
+  V)
+    steamcmd_update=1
+    steamcmd_validate=1
+    ;;
+  c)
+    custom_game="$OPTARG"
+    ;;
+  ?)
+    cat >&2 <<EOF
 Usage: $0 [options] [<entrypoint_cmd> [entrypoint_args...]]
 
 Options:
@@ -73,8 +74,8 @@ Options:
   -V               Validate game files (environment: STEAMCMD_VALIDATE)
   -c               Path to a custom game to be mounted at "${CUSTOM_GAME_PATH}"
 EOF
-      exit 2
-      ;;
+    exit 2
+    ;;
   esac
 done
 
@@ -86,8 +87,6 @@ options=(
   "--gpus" "all"
   "--env" "NVIDIA_DRIVER_CAPABILITIES=all"
   "--env" "DISPLAY=$DISPLAY"
-  "--env" "STEAM_USER=$steam_user"
-  "--env" "STEAM_PASSWORD=$steam_password"
   "--env" "STEAMCMD_UPDATE=$steamcmd_update"
   "--env" "STEAMCMD_VALIDATE=$steamcmd_validate"
   "--volume" "/tmp/.X11-unix:/tmp/.X11-unix"
@@ -95,6 +94,14 @@ options=(
 
 if [[ -n "$env_file" ]]; then
   options+=("--env-file" "$env_file")
+fi
+
+if [[ -n "$steam_user" ]]; then
+  options+=("--env" "STEAM_USER=$steam_user")
+fi
+
+if [[ -n "$steam_password" ]]; then
+  options+=("--env" "STEAM_PASSWORD=$steam_password")
 fi
 
 for volume in "${!volume_names[@]}"; do
