@@ -28,8 +28,8 @@ run_steamcmd() {
   fi
 
   if [[ "$STEAMCMD_VALIDATE" == "1" ]]; then
-    dota2_update_cmd+="-validate"
-    proton_update_cmd+="-validate"
+    dota2_update_cmd+=" -validate"
+    proton_update_cmd+=" -validate"
   fi
 
   args=(
@@ -43,21 +43,23 @@ run_steamcmd() {
     '+@sSteamCmdForcePlatformType ""'
   )
 
+  echo "Updating..."
+
   "${STEAMCMD:?}" "${args[@]}" "+quit"
 }
 
 [[ "$STEAMCMD_UPDATE" == "1" ]] && run_steamcmd
 
 case "$1" in
-  d2tp)
-    shift
-    exec "${D2TP_RUN:?}" "$@"
-    ;;
-  shell)
-    shift
-    exec "/bin/bash" -i -l "$@"
-    ;;
-  *)
-    exec "$@"
-    ;;
+d2tp)
+  shift
+  exec "${D2TP_RUN:?}" "$@"
+  ;;
+shell)
+  shift
+  exec "/bin/bash" -i -l "$@"
+  ;;
+*)
+  exec "$@"
+  ;;
 esac
